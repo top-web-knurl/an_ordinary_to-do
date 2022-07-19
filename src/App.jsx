@@ -1,13 +1,15 @@
 import { Header } from "./components/UI/Header/Header";
+import { Layout } from "./components/UI/Layout/Layout";
+import { TaskList } from "./components/TaskList/TaskList";
 
 
 function App() {
   return (
     <>
-      <Header>
-        <div className="App">
-        </div>
-      </Header>
+      <Header />
+      <Layout>
+        <TaskList/>
+      </Layout>
     </>
 
   );

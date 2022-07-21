@@ -13,9 +13,9 @@ export const TaskList = () => {
         setTaskKey((prevKey) => prevKey + 1)
         setTask((prevState) => {
             return [...prevState, {
-                desctiption: desc,
+                description: desc,
                 completed: false,
-                key: taskKey + 1,
+                id: taskKey + 1,
                 date: taskDate
             }]
         })
@@ -24,14 +24,27 @@ export const TaskList = () => {
         setTaskDate(e => e = '')
     }
 
+    const addComplidted = (id) => {
+        setTask((prevState) => {
+            return [
+                ...prevState.map(task => {
+                    if (task.id === id) {
+                        return { ...task, completed: !task.completed }
+                    }
+                    return task
+                })
+            ]
+        })
+    }
+
     const onSubmit = (e) => {
-        setDesc(() => e.target.value)
+
         if (e.key === 'Enter') {
+            setDesc(() => e.target.value)
             addTask()
         }
     }
 
-  
     return (
         <>
             <div className="">
@@ -45,15 +58,46 @@ export const TaskList = () => {
                     value={desc}
                 />
                 <label>
-                    <input 
-                    type="date" 
-                    onChange={e => setTaskDate(e.target.value)} 
-                    value={taskDate}/>
+                    <input
+                        type="date"
+                        onChange={e => setTaskDate(e.target.value)}
+                        value={taskDate} />
                 </label>
             </div>
             <ul className="list-group">
-                {tasks.map(item => <TaskItem description={item.desctiption} completed={item.completed} key={item.key} date={item.date} />)}
+                {
+                    tasks.map(item => (
+                        !item.completed ?
+                            <TaskItem
+                                description={item.description}
+                                addComplidted={(id) => addComplidted(id)}
+                                key={item.id}
+                                id={item.id}
+                                date={item.date}
+                                completed={item.completed}
+                            />
+                            : null
+                    ))
+                }
             </ul>
+            <h4>Завершённые</h4>
+            <ul className="list-group">
+                {
+                    tasks.map(item => (
+                        item.completed ?
+                            <TaskItem
+                                description={item.description}
+                                addComplidted={(id) => addComplidted(id)}
+                                key={item.id}
+                                id={item.id}
+                                date={item.date}
+                                completed={item.completed}
+                            />
+                            : null
+                    ))
+                }
+            </ul>
+            {console.log(tasks)}
         </>
 
     )

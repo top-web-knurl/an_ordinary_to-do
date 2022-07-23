@@ -7,6 +7,9 @@ export const TaskList = () => {
     const [taskKey, setTaskKey] = useState(0);
     const [taskDate, setTaskDate] = useState('');
 
+    const tasksInWorks = tasks.filter(task => !task.completed)
+    const tasksCompleted = tasks.filter(task => task.completed)
+
     const addTask = () => {
         if (desc.trim() === '') return
 
@@ -45,6 +48,7 @@ export const TaskList = () => {
         }
     }
 
+
     return (
         <>
             <div className="">
@@ -66,39 +70,34 @@ export const TaskList = () => {
             </div>
             <ul className="list-group">
                 {
-                    tasks.map(item => (
-                        !item.completed ?
-                            <TaskItem
-                                description={item.description}
-                                addComplidted={(id) => addComplidted(id)}
-                                key={item.id}
-                                id={item.id}
-                                date={item.date}
-                                completed={item.completed}
-                            />
-                            : null
+                    tasksInWorks.map(task => (
+                        <TaskItem
+                            task={task}
+                            addComplidted={(id) => addComplidted(id)}
+                            key={task.id}
+                        />
                     ))
                 }
             </ul>
             <h4>Завершённые</h4>
             <ul className="list-group">
                 {
-                    tasks.map(item => (
-                        item.completed ?
-                            <TaskItem
-                                description={item.description}
-                                addComplidted={(id) => addComplidted(id)}
-                                key={item.id}
-                                id={item.id}
-                                date={item.date}
-                                completed={item.completed}
-                            />
-                            : null
+                    tasksCompleted.map(task => (
+                        <TaskItem
+                            task={task}
+                            addComplidted={(id) => addComplidted(id)}
+                            key={task.id}
+                        />
+
                     ))
                 }
             </ul>
-            {console.log(tasks)}
+
         </>
 
     )
 }
+
+
+// но чтобы улучишься читаемость перепиши TaskItem чтоб он приинмал не набор полей а польностьтью объект task
+// и вынести фильтрацию за пределы return.  Высчитай «заранее» заверешнные и не заверешенны таски

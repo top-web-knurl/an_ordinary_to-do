@@ -1,16 +1,21 @@
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { TaskItem } from "./TaskItem/TaskItem";
 
 export const TaskList = () => {
-    const [tasks, setTask] = useState([]);
+    const [tasks, setTask] = useState(localStorage.getItem('tasks') !== null ? [...JSON.parse(localStorage.getItem('tasks'))] : []);
     const [desc, setDesc] = useState('');
-    const [taskKey, setTaskKey] = useState(0);
+    const [taskKey, setTaskKey] = useState(localStorage.getItem('kyes') !== null ? JSON.parse(localStorage.getItem('kyes')) : 0);
     const [taskDate, setTaskDate] = useState('');
 
     const tasksInWorks = tasks.filter(task => !task.completed)
     const tasksCompleted = tasks.filter(task => task.completed)
 
-    const addTask = () => {
+    useMemo(() => {
+        localStorage.setItem('tasks', [JSON.stringify(tasks)])
+        localStorage.setItem('kyes', [JSON.stringify(taskKey)])
+    }, [tasks,taskKey])
+
+    const addTask = useCallback(() => {
         if (desc.trim() === '') return
 
         setTaskKey((prevKey) => prevKey + 1)
@@ -25,22 +30,23 @@ export const TaskList = () => {
 
         setDesc(e => e = '')
         setTaskDate(e => e = '')
-    }
+    }, [desc, taskKey, taskDate])
 
     const deleteTask = (id) => {
 
         setTask((prevState) => {
-            const delitItemIndex = prevState.findIndex(task => task.id === id)
+          
+            const delitItemIndex = prevState.findIndex(task => task.id === id) + 1
             return [
-                ...prevState.slice(0, delitItemIndex),
-                ...prevState.slice(delitItemIndex, prevState.length - 1)
+                ...prevState.slice(0, delitItemIndex - 1),
+                ...prevState.slice(delitItemIndex, prevState.length + 1)
             ]
 
         })
 
     }
 
-    const addComplidted = (id) => {
+    const addComplidted = useCallback((id) => {
         setTask((prevState) => {
             return [
                 ...prevState.map(task => {
@@ -51,19 +57,20 @@ export const TaskList = () => {
                 })
             ]
         })
-    }
+    }, [])
 
-    const onSubmit = (e) => {
+    const onSubmit = useCallback((e) => {
 
         if (e.key === 'Enter') {
             setDesc(() => e.target.value)
             addTask()
         }
-    }
+    }, [addTask])
 
 
     return (
         <>
+            
             <div className="">
                 <button onClick={(() => addTask())}>
                     + Добавить задачу

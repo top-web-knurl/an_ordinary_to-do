@@ -27,6 +27,19 @@ export const TaskList = () => {
         setTaskDate(e => e = '')
     }
 
+    const deleteTask = (id) => {
+
+        setTask((prevState) => {
+            const delitItemIndex = prevState.findIndex(task => task.id === id)
+            return [
+                ...prevState.slice(0, delitItemIndex),
+                ...prevState.slice(delitItemIndex, prevState.length - 1)
+            ]
+
+        })
+
+    }
+
     const addComplidted = (id) => {
         setTask((prevState) => {
             return [
@@ -74,6 +87,7 @@ export const TaskList = () => {
                         <TaskItem
                             task={task}
                             addComplidted={(id) => addComplidted(id)}
+                            deleteTask={(id) => deleteTask(id)}
                             key={task.id}
                         />
                     ))
@@ -86,6 +100,7 @@ export const TaskList = () => {
                         <TaskItem
                             task={task}
                             addComplidted={(id) => addComplidted(id)}
+                            deleteTask={(id) => deleteTask(id)}
                             key={task.id}
                         />
 

@@ -1,4 +1,5 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
+import { SearchContext } from "../context/Search/SearchContext";
 import { TaskItem } from "./TaskItem/TaskItem";
 
 export const TaskList = () => {
@@ -6,14 +7,21 @@ export const TaskList = () => {
     const [desc, setDesc] = useState('');
     const [taskKey, setTaskKey] = useState(localStorage.getItem('kyes') !== null ? JSON.parse(localStorage.getItem('kyes')) : 0);
     const [taskDate, setTaskDate] = useState('');
+    const { searchTasks } = useContext(SearchContext);
 
-    const tasksInWorks = tasks.filter(task => !task.completed)
-    const tasksCompleted = tasks.filter(task => task.completed)
+    const filterSearchTasks = tasks.filter(task => {
+        if (searchTasks === '') {
+            return task
+        }
+        return task.description.toLowerCase().indexOf(searchTasks.toLowerCase()) !== -1
+    })
+    const tasksInWorks = filterSearchTasks.filter(task => !task.completed)
+    const tasksCompleted = filterSearchTasks.filter(task => task.completed)
 
-    useMemo(() => {
+    useEffect(() => {
         localStorage.setItem('tasks', [JSON.stringify(tasks)])
         localStorage.setItem('kyes', [JSON.stringify(taskKey)])
-    }, [tasks,taskKey])
+    }, [tasks, taskKey])
 
     const addTask = useCallback(() => {
         if (desc.trim() === '') return
@@ -35,15 +43,12 @@ export const TaskList = () => {
     const deleteTask = (id) => {
 
         setTask((prevState) => {
-          
             const delitItemIndex = prevState.findIndex(task => task.id === id) + 1
             return [
                 ...prevState.slice(0, delitItemIndex - 1),
                 ...prevState.slice(delitItemIndex, prevState.length + 1)
             ]
-
         })
-
     }
 
     const addComplidted = useCallback((id) => {
@@ -60,7 +65,6 @@ export const TaskList = () => {
     }, [])
 
     const onSubmit = useCallback((e) => {
-
         if (e.key === 'Enter') {
             setDesc(() => e.target.value)
             addTask()
@@ -70,24 +74,36 @@ export const TaskList = () => {
 
     return (
         <>
-            
-            <div className="">
-                <button onClick={(() => addTask())}>
-                    + Добавить задачу
-                </button>
-                <input
-                    type="text"
-                    onKeyPress={e => onSubmit(e)}
-                    onChange={e => setDesc(e.target.value)}
-                    value={desc}
-                />
-                <label>
+            <div className="d-flex mb-3 flex-md-row flex-column row g-2">
+                <div className="col-md-4 col-lg-3 col-xl-2">
+                    <button
+                        className="btn btn-success col-12"
+                        onClick={(() => addTask())}>
+                        + Добавить задачу
+                    </button>
+                </div>
+
+                <div className="col-md-5  col-lg-6 col-xl-8">
                     <input
+                        className="form-control form-control-dark"
+                        placeholder="Введите задачу"
+                        type="text"
+                        onKeyPress={e => onSubmit(e)}
+                        onChange={e => setDesc(e.target.value)}
+                        value={desc}
+                    />
+                </div>
+
+                <div className="col-md-3 col-xl-2">
+                    <input
+                        className="form-control form-control-dark "
                         type="date"
                         onChange={e => setTaskDate(e.target.value)}
                         value={taskDate} />
-                </label>
+                </div>
             </div>
+
+            <h4 className="mt-3">{searchTasks !== '' ? 'Результаты поиска' : 'Список дел'}</h4>
             <ul className="list-group">
                 {
                     tasksInWorks.map(task => (
@@ -100,7 +116,7 @@ export const TaskList = () => {
                     ))
                 }
             </ul>
-            <h4>Завершённые</h4>
+            <h4 className="mt-3">Завершённые</h4>
             <ul className="list-group">
                 {
                     tasksCompleted.map(task => (
@@ -110,16 +126,9 @@ export const TaskList = () => {
                             deleteTask={(id) => deleteTask(id)}
                             key={task.id}
                         />
-
                     ))
                 }
             </ul>
-
         </>
-
     )
 }
-
-
-// но чтобы улучишься читаемость перепиши TaskItem чтоб он приинмал не набор полей а польностьтью объект task
-// и вынести фильтрацию за пределы return.  Высчитай «заранее» заверешнные и не заверешенны таски

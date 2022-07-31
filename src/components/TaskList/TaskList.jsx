@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { SearchContext } from "../context/Search/SearchContext";
 import { TaskItem } from "./TaskItem/TaskItem";
 
@@ -8,13 +8,16 @@ export const TaskList = () => {
     const [taskKey, setTaskKey] = useState(localStorage.getItem('kyes') !== null ? JSON.parse(localStorage.getItem('kyes')) : 0);
     const [taskDate, setTaskDate] = useState('');
     const { searchTasks } = useContext(SearchContext);
-
-    const filterSearchTasks = tasks.filter(task => {
-        if (searchTasks === '') {
-            return task
-        }
-        return task.description.toLowerCase().indexOf(searchTasks.toLowerCase()) !== -1
-    })
+    
+    const filterSearchTasks = useMemo(() => {
+       return tasks.filter(task => {
+            if (searchTasks === '') {
+                return task
+            }
+            return task.description.toLowerCase().indexOf(searchTasks.toLowerCase()) !== -1
+        })
+    },[tasks,searchTasks])
+    
     const tasksInWorks = filterSearchTasks.filter(task => !task.completed)
     const tasksCompleted = filterSearchTasks.filter(task => task.completed)
 
@@ -23,7 +26,7 @@ export const TaskList = () => {
         localStorage.setItem('kyes', [JSON.stringify(taskKey)])
     }, [tasks, taskKey])
 
-    const addTask = useCallback(() => {
+    const addTask = () => {
         if (desc.trim() === '') return
 
         setTaskKey((prevKey) => prevKey + 1)
@@ -38,10 +41,9 @@ export const TaskList = () => {
 
         setDesc(e => e = '')
         setTaskDate(e => e = '')
-    }, [desc, taskKey, taskDate])
+    }
 
     const deleteTask = (id) => {
-
         setTask((prevState) => {
             const delitItemIndex = prevState.findIndex(task => task.id === id) + 1
             return [
@@ -51,7 +53,7 @@ export const TaskList = () => {
         })
     }
 
-    const addComplidted = useCallback((id) => {
+    const addComplidted = (id) => {
         setTask((prevState) => {
             return [
                 ...prevState.map(task => {
@@ -62,15 +64,14 @@ export const TaskList = () => {
                 })
             ]
         })
-    }, [])
+    }
 
-    const onSubmit = useCallback((e) => {
+    const onSubmit = (e) => {
         if (e.key === 'Enter') {
             setDesc(() => e.target.value)
             addTask()
         }
-    }, [addTask])
-
+    }
 
     return (
         <>
@@ -78,7 +79,7 @@ export const TaskList = () => {
                 <div className="col-md-4 col-lg-3 col-xl-2">
                     <button
                         className="btn btn-success col-12"
-                        onClick={(() => addTask())}>
+                        onClick={addTask}>
                         + Добавить задачу
                     </button>
                 </div>
@@ -88,7 +89,7 @@ export const TaskList = () => {
                         className="form-control form-control-dark"
                         placeholder="Введите задачу"
                         type="text"
-                        onKeyPress={e => onSubmit(e)}
+                        onKeyPress={onSubmit}
                         onChange={e => setDesc(e.target.value)}
                         value={desc}
                     />
@@ -109,8 +110,8 @@ export const TaskList = () => {
                     tasksInWorks.map(task => (
                         <TaskItem
                             task={task}
-                            addComplidted={(id) => addComplidted(id)}
-                            deleteTask={(id) => deleteTask(id)}
+                            addComplidted={addComplidted}
+                            deleteTask={deleteTask}
                             key={task.id}
                         />
                     ))
@@ -122,8 +123,8 @@ export const TaskList = () => {
                     tasksCompleted.map(task => (
                         <TaskItem
                             task={task}
-                            addComplidted={(id) => addComplidted(id)}
-                            deleteTask={(id) => deleteTask(id)}
+                            addComplidted={addComplidted}
+                            deleteTask={deleteTask}
                             key={task.id}
                         />
                     ))

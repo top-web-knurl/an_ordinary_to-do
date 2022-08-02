@@ -7,17 +7,18 @@ export const TaskList = () => {
     const [desc, setDesc] = useState('');
     const [taskKey, setTaskKey] = useState(localStorage.getItem('kyes') !== null ? JSON.parse(localStorage.getItem('kyes')) : 0);
     const [taskDate, setTaskDate] = useState('');
+    const [dragId, setDragId] = useState(null);
     const { searchTasks } = useContext(SearchContext);
-    
+
     const filterSearchTasks = useMemo(() => {
-       return tasks.filter(task => {
+        return tasks.filter(task => {
             if (searchTasks === '') {
                 return task
             }
             return task.description.toLowerCase().indexOf(searchTasks.toLowerCase()) !== -1
         })
-    },[tasks,searchTasks])
-    
+    }, [tasks, searchTasks])
+
     const tasksInWorks = filterSearchTasks.filter(task => !task.completed)
     const tasksCompleted = filterSearchTasks.filter(task => task.completed)
 
@@ -29,12 +30,12 @@ export const TaskList = () => {
     const addTask = () => {
         if (desc.trim() === '') return
 
-        setTaskKey((prevKey) => prevKey + 1)
-        setTask((prevState) => {
+        setTaskKey(prevKey => prevKey + 1)
+        setTask(prevState => {
             return [...prevState, {
                 description: desc,
                 completed: false,
-                id: taskKey + 1,
+                id: taskKey,
                 date: taskDate
             }]
         })
@@ -43,17 +44,13 @@ export const TaskList = () => {
         setTaskDate(e => e = '')
     }
 
-    const deleteTask = (id) => {
+    const deleteTask = id => {
         setTask((prevState) => {
-            const delitItemIndex = prevState.findIndex(task => task.id === id) + 1
-            return [
-                ...prevState.slice(0, delitItemIndex - 1),
-                ...prevState.slice(delitItemIndex, prevState.length + 1)
-            ]
+            return prevState.filter(task => task.id !== id)
         })
     }
 
-    const addComplidted = (id) => {
+    const addComplidted = id => {
         setTask((prevState) => {
             return [
                 ...prevState.map(task => {
@@ -66,11 +63,31 @@ export const TaskList = () => {
         })
     }
 
-    const onSubmit = (e) => {
+    const onSubmit = e => {
         if (e.key === 'Enter') {
             setDesc(() => e.target.value)
             addTask()
         }
+    }
+
+    const onDragItem = id => {
+        setDragId(id)
+    }
+    const onDropItem = (e,id) => {
+        e.preventDefault()
+        e.target.classList.remove('bg-light')
+        
+        setTask(prevState => {
+            const dropItemIndex = prevState.findIndex(task => task.id === id)
+            const dropItem = prevState.filter(task => task.id === dragId)
+            const dropDeliTeItem = prevState.filter(task => task.id !== dragId)
+            return [
+                ...dropDeliTeItem.slice(0, dropItemIndex),
+                ...dropItem,
+                ...dropDeliTeItem.slice(dropItemIndex, prevState.length)
+            ]
+        })
+        
     }
 
     return (
@@ -109,6 +126,8 @@ export const TaskList = () => {
                 {
                     tasksInWorks.map(task => (
                         <TaskItem
+                            onDragItem={onDragItem}
+                            onDropItem={onDropItem}
                             task={task}
                             addComplidted={addComplidted}
                             deleteTask={deleteTask}

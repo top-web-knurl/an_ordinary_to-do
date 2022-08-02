@@ -1,6 +1,6 @@
 import React from "react";
-// { description, completed, date, id, addComplidted}
-export const TaskItem = ({ task, addComplidted, deleteTask }) => {
+
+export const TaskItem = ({ task, addComplidted, deleteTask, onDragItem, onDropItem }) => {
     const { description, completed, date, id } = task
 
     const clearDate = new Date(date).toLocaleString('ru-RU', {
@@ -8,10 +8,28 @@ export const TaskItem = ({ task, addComplidted, deleteTask }) => {
         month: 'long',
         day: 'numeric'
     })
+
     const deadLine = Date.parse(new Date(date)) < Date.parse(new Date())
 
+    const dragOverHandler = (e) => {
+        e.preventDefault()
+        e.target.classList.add('bg-light')
+    }
+
+    const dragLeaveHandler = (e) => {
+        e.preventDefault()
+        e.target.classList.remove('bg-light')
+    }
+
     return (
-        <li className={`d-flex align-items-center justify-content-between list-group-item ${deadLine ? 'list-group-item-danger' : ''} ${completed ? 'text-decoration-line-through' : ''}`}>
+        <li
+            className={`d-flex align-items-center justify-content-between list-group-item ${deadLine ? 'list-group-item-danger' : ''}${completed ? ' text-decoration-line-through' : ''}`}
+            draggable="true"
+            onDragOver={e => dragOverHandler(e)}
+            onDragLeave={e => dragLeaveHandler(e)}
+            onDragStart={() => onDragItem(id)}
+            onDrop={(e) => onDropItem(e,id)}
+        >
             <span className="d-flex align-items-center flex-wrap">
                 <label className=" me-2">
                     <input

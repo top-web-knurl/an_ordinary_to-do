@@ -73,10 +73,10 @@ export const TaskList = () => {
     const onDragItem = id => {
         setDragId(id)
     }
-    const onDropItem = (e,id) => {
+    const onDropItem = (e, id) => {
         e.preventDefault()
         e.target.classList.remove('bg-light')
-        
+
         setTask(prevState => {
             const dropItemIndex = prevState.findIndex(task => task.id === id)
             const dropItem = prevState.filter(task => task.id === dragId)
@@ -87,9 +87,8 @@ export const TaskList = () => {
                 ...dropDeliTeItem.slice(dropItemIndex, prevState.length)
             ]
         })
-        
     }
-
+    
     return (
         <>
             <div className="d-flex mb-3 flex-md-row flex-column row g-2">
@@ -121,7 +120,7 @@ export const TaskList = () => {
                 </div>
             </div>
 
-            <h4 className="mt-3">{searchTasks !== '' ? 'Результаты поиска' : 'Список дел'}</h4>
+            <h4 className="mt-3 mb-3">{searchTasks !== '' ? `Результаты поиска (${tasksInWorks.length})` : `Список дел (${tasksInWorks.length})`}</h4>
             <ul className="list-group">
                 {
                     tasksInWorks.map(task => (
@@ -136,19 +135,28 @@ export const TaskList = () => {
                     ))
                 }
             </ul>
-            <h4 className="mt-3">Завершённые</h4>
-            <ul className="list-group">
-                {
-                    tasksCompleted.map(task => (
-                        <TaskItem
-                            task={task}
-                            addComplidted={addComplidted}
-                            deleteTask={deleteTask}
-                            key={task.id}
-                        />
-                    ))
-                }
-            </ul>
+            {
+                tasksCompleted.length > 0 ?
+                    <>
+                        <h4 className="mt-4 mb-3">Завершённые ({tasksCompleted.length})</h4>
+                        <ul className="list-group">
+                            {
+                                tasksCompleted.map(task => (
+                                    <TaskItem
+                                        task={task}
+                                        addComplidted={addComplidted}
+                                        deleteTask={deleteTask}
+                                        key={task.id}
+                                        onDragItem={onDragItem}
+                                        onDropItem={onDropItem}
+                                    />
+                                ))
+                            }
+                        </ul>
+                    </>
+                    :
+                    null
+            }
         </>
     )
 }

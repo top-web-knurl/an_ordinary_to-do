@@ -1,14 +1,13 @@
 import React from "react";
 
 export const TaskItem = ({ task, addComplidted, deleteTask, onDragItem, onDropItem }) => {
-    const { description, completed, date, id } = task
 
+    const { description, completed, date, id } = task
     const clearDate = new Date(date).toLocaleString('ru-RU', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
     })
-
     const deadLine = Date.parse(new Date(date)) < Date.parse(new Date())
 
     const dragOverHandler = (e) => {
@@ -28,7 +27,7 @@ export const TaskItem = ({ task, addComplidted, deleteTask, onDragItem, onDropIt
             onDragOver={e => dragOverHandler(e)}
             onDragLeave={e => dragLeaveHandler(e)}
             onDragStart={() => onDragItem(id)}
-            onDrop={(e) => onDropItem(e,id)}
+            onDrop={(e) => onDropItem(e, id)}
         >
             <span className="d-flex align-items-center flex-wrap">
                 <label className=" me-2">
